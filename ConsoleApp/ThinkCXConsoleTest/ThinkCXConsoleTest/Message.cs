@@ -8,10 +8,13 @@ namespace ThinkCXConsoleTest
 {
     public class Message
     {
-        public string DeviceId { get; set; }
-        public string[] UrlParams { get; set; }
+        public Guid DeviceId { get; set; }
+        public string UrlParams { get; set; }
         public string UserAgent { get; set; }
         public string HeaderString { get; set; }
         public DateTimeOffset TimeStamp { get; set; }
+        public string IPAddress { get; set; }
+        public int IPCarrierId { get; set; }
+        public int DeviceCarrierId { get; set; }
     }
 }

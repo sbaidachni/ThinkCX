@@ -12,6 +12,25 @@ namespace ThinkCXConsoleTest
     class Program
     {
         private static HttpClient client = new HttpClient();
+
+        private static List<Guid> DeviceIds = new List<Guid>()
+        {
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+        };
+
+        private static List<string> IPAddresses = new List<string>()
+        {
+            "1.54.23.197",
+            "1.54.23.195",
+            "1.54.23.191",
+            "1.54.23.196"
+        };
         static void Main(string[] args)
         {
             MakeRequestsAsync();
@@ -22,13 +41,13 @@ namespace ThinkCXConsoleTest
         {
             var i = 0;
             var rand = new Random();
-            var semaphore = new SemaphoreSlim(initialCount: 5);
+            var semaphore = new SemaphoreSlim(initialCount: 100);
             while (true)
             {
                 await semaphore.WaitAsync();
                 System.Console.WriteLine(semaphore.CurrentCount + " " + i++);
-                var message = CreateNewMessage(rand.Next()); 
-                Console.WriteLine("Sending Data for Device :" + message.DeviceId);
+                var message = CreateNewMessage(rand);
+                Console.WriteLine("Sending Data for Device :" + message.DeviceId +" IPAddress: "+message.IPAddress);
                 var content = new StringContent(JsonConvert.SerializeObject(message), Encoding.UTF8, "application/json");
                 client.PostAsync(@"https://thinkcxhttpfunction.azurewebsites.net/api/ThinkCXHttpTriggerFunction?code=h/PXBEMaoPVal3F2jcB7M6l6aaKmxlXF4ZfOTz6wSJCCqnXyGp800Q==", content).ContinueWith(t =>
                 {
@@ -37,71 +56,19 @@ namespace ThinkCXConsoleTest
             }
         }
 
-        private Message CreateNewMessage(int i)
+        private static Message CreateNewMessage(Random i)
         {
             var message = new Message()
-            {
-                DeviceId = i.ToString(),
-                UserAgent = "mobile",
-                HeaderString = "",
-                TimeStamp = DateTimeOffset.UtcNow,
-                UrlParams = null
+                {
+                    DeviceId = DeviceIds.ElementAt(i.Next(DeviceIds.Count-1)),
+                    UserAgent =  "mobile",
+                    HeaderString = "Test Run 5",
+                    TimeStamp = DateTimeOffset.UtcNow,
+                    UrlParams = "Test Run 5",
+                    IPAddress = IPAddresses.ElementAt(i.Next(IPAddresses.Count-1))
             };
 
             return message;
         }
     }
-
-   
-
 }
-/*
-{
-class Program
-{
-
-    const string RequestUri = "https://thinkcxhttpfunction.azurewebsites.net/api/ThinkCXHttpTriggerFunction?code=h/PXBEMaoPVal3F2jcB7M6l6aaKmxlXF4ZfOTz6wSJCCqnXyGp800Q==";
-
-    static void Main(string[] args)
-    {
-        Console.WriteLine("Start sending data");
-
-        AsyncPump.Run(async delegate
-        {
-            await Run();
-        });
-    }
-
-    static async Task Run()
-    {
-        try
-        {
-            Console.WriteLine("Sending Data...");
-            await SendRequest();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Ooops, something broke: {0}", ex);
-            Console.WriteLine();
-        }
-    }
-
-    static async Task SendRequest()
-    {
-        var client = new HttpClient();
-        var message = new Message()
-        {
-            DeviceId = "111222333",
-            UserAgent = "mobile",
-            HeaderString = "",
-            TimeStamp = DateTimeOffset.UtcNow,
-            UrlParams = null
-        };
-        Console.WriteLine("Sending Data for Device :"+message.DeviceId);
-        var stringContent = new StringContent(JsonConvert.SerializeObject(message), Encoding.UTF8, "application/json");
-        await client.PostAsync(RequestUri, stringContent);
-
-    }
-
-}
-}*/
