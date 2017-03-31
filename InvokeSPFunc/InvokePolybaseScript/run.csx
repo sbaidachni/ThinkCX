@@ -14,6 +14,7 @@ public static void Run(Stream myBlob, string name, TraceWriter log)
         conn.Open();
         comm.ExecuteNonQuery();
         conn.Close();
+        log.Info("done");
     }
     catch(Exception ex)
     {
