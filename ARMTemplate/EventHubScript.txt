@@ -1,0 +1,15 @@
+SELECT
+    events.IPAddress as ip_address,
+    events.DeviceId as device_id,
+    events.UserAgent as user_agent,
+    ipref.Carrier as carrier_name,
+    events.UrlParams as url_params,
+    events.HeaderString as header_string,
+    events.IPCarrierId as ip_carrier_id,
+    events.DeviceCarrierId as device_carrier_id,
+    events.[TimeStamp] as time_stamp
+INTO
+    datawarehouseoutput
+FROM
+    EventHubConnection as events
+    join IPCarrierReferenceJSON as ipref on events.IPAddress = ipref.IPAddress
